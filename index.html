@@ -88,16 +88,10 @@
 
   /* 3D model slot */
   .model-slot{
-    position:relative; aspect-ratio:1/1; border:1px dashed var(--line-on-dark); border-radius:6px;
-    display:flex; align-items:center; justify-content:center; text-align:center; padding:30px;
-    background:radial-gradient(circle at 50% 50%, rgba(193,84,31,0.12), transparent 65%);
+    position:relative; aspect-ratio:1/1; border-radius:6px;
+    background:radial-gradient(circle at 50% 55%, rgba(193,84,31,0.16), transparent 65%);
   }
-  .model-slot .tag{
-    position:absolute; top:14px; left:14px; font-family:'JetBrains Mono'; font-size:10.5px;
-    color:var(--rust-bright); border:1px solid var(--line-on-dark); padding:5px 10px; border-radius:3px; letter-spacing:0.06em;
-  }
-  .model-slot p{ font-family:'JetBrains Mono'; font-size:12.5px; color:#9C9686; line-height:1.7; max-width:260px; }
-  .model-slot .icon{ font-size:40px; margin-bottom:14px; opacity:0.6; }
+  model-viewer{ --progress-bar-color: var(--rust-bright); }
 
   /* trail stat strip under hero */
   .stat-strip{ display:flex; gap:0; border-top:1px solid var(--line-on-dark); margin-top:6vh; position:relative; z-index:1; }
@@ -210,12 +204,21 @@
         <a class="btn-outline" href="#local">Ver localização</a>
       </div>
     </div>
-    <div class="model-slot">
-      <span class="tag">MODELO 3D · EM BREVE</span>
-      <div>
-        <div class="icon">🏍️</div>
-        <p>Espaço reservado pro modelo 3D da moto, girando conforme o scroll da página — entra aqui assim que o arquivo estiver pronto.</p>
-      </div>
+    <div class="model-slot" id="modelSlot">
+      <model-viewer
+        id="bikeModel"
+        src="motorcycle.glb"
+        alt="Modelo 3D de moto"
+        camera-controls
+        disable-zoom
+        interaction-prompt="none"
+        exposure="1.1"
+        shadow-intensity="0.6"
+        camera-orbit="45deg 78deg 105%"
+        min-camera-orbit="auto 78deg 105%"
+        max-camera-orbit="auto 78deg 105%"
+        style="width:100%; height:100%; --poster-color: transparent; background:transparent;">
+      </model-viewer>
     </div>
   </div>
   <div class="stat-strip">
