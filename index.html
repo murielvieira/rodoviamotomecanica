@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rodovia Motomecânica — Sorocaba</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+<style>
+  :root{
+    --asphalt:#1B1A17;
+    --asphalt-deep:#100F0D;
+    --sand:#EDE6D6;
+    --rust:#C1541F;
+    --rust-bright:#E06A2C;
+    --olive:#565A42;
+    --olive-deep:#3A3D2E;
+    --ink:#1B1A17;
+    --ink-soft:#5C5A50;
+    --line:rgba(27,26,23,0.15);
+    --line-on-dark:rgba(237,230,214,0.16);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--sand); color:var(--ink);
+    font-family:'Barlow', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit; text-decoration:none;}
+  .display{ font-family:'Rajdhani', sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.01em; }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+
+  /* topographic contour line texture, used as background */
+  .topo{
+    background-image:
+      repeating-radial-gradient(circle at 20% 30%, transparent 0 38px, var(--line-on-dark) 39px 40px),
+      repeating-radial-gradient(circle at 85% 70%, transparent 0 50px, var(--line-on-dark) 51px 52px);
+    background-color:var(--asphalt);
+  }
+
+  /* tire tread divider */
+  .tread{ height:10px; background:repeating-linear-gradient(115deg, var(--rust) 0 10px, var(--asphalt) 10px 20px); }
+
+  /* NAV */
+  nav{
+    position:sticky; top:0; z-index:50;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:18px 6vw;
+    background:rgba(27,26,23,0.94); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line-on-dark);
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand-mark{ width:34px; height:34px; }
+  .brand span{ font-family:'Rajdhani'; font-weight:700; font-size:19px; color:var(--sand); text-transform:uppercase; letter-spacing:0.02em; }
+  nav ul{ list-style:none; display:flex; gap:32px; }
+  nav a{ font-size:13px; font-weight:600; color:#C9C3B4; letter-spacing:0.03em; text-transform:uppercase; }
+  nav a:hover{ color:var(--rust-bright); }
+  .nav-cta{
+    background:#25D366; color:#0C1A0F; padding:11px 20px; border-radius:3px;
+    font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px;
+  }
+  .burger{ display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:6px; }
+  .burger span{ width:24px; height:2px; background:var(--sand); display:block; }
+  .mobile-menu{ display:none; position:fixed; inset:0; z-index:100; background:var(--asphalt); padding:26px 6vw; flex-direction:column; }
+  .mobile-menu.open{ display:flex; }
+  .mobile-menu-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; }
+  .mobile-menu a{ font-family:'Rajdhani'; font-weight:700; font-size:26px; color:var(--sand); text-transform:uppercase; padding:16px 0; border-bottom:1px dashed var(--line-on-dark); }
+  .mobile-menu a.nav-cta{ text-align:center; margin-top:26px; font-family:'Barlow'; font-size:14px; justify-content:center; text-transform:none; }
+  @media (max-width:900px){ nav ul{display:none;} nav .nav-cta{display:none;} .burger{display:flex;} .brand span{font-size:15px;} }
+
+  /* HERO */
+  .hero{ color:var(--sand); padding:10vh 6vw 6vh; position:relative; overflow:hidden; }
+  .hero-grid{ display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:center; position:relative; z-index:1; }
+  .badge-rating{
+    display:inline-flex; align-items:center; gap:8px; background:rgba(237,230,214,0.08);
+    border:1px solid var(--line-on-dark); padding:8px 16px; border-radius:20px; margin-bottom:24px;
+    font-family:'JetBrains Mono'; font-size:12px;
+  }
+  .badge-rating .stars{ color:var(--rust-bright); }
+  h1.title{ font-size:clamp(40px,5.4vw,64px); line-height:0.98; margin-bottom:20px; }
+  h1.title em{ font-style:normal; color:var(--rust-bright); }
+  .hero p.sub{ font-size:16.5px; line-height:1.7; color:#C9C3B4; max-width:440px; margin-bottom:30px; }
+  .hero-ctas{ display:flex; gap:14px; flex-wrap:wrap; }
+  .btn-whats{ background:#25D366; color:#0C1A0F; font-weight:700; padding:15px 26px; border-radius:3px; font-size:14px; display:inline-flex; align-items:center; gap:10px; }
+  .btn-outline{ border:1.5px solid var(--line-on-dark); color:var(--sand); padding:13.5px 24px; border-radius:3px; font-size:14px; font-weight:600; }
+
+  /* 3D model slot */
+  .model-slot{
+    position:relative; aspect-ratio:1/1; border:1px dashed var(--line-on-dark); border-radius:6px;
+    display:flex; align-items:center; justify-content:center; text-align:center; padding:30px;
+    background:radial-gradient(circle at 50% 50%, rgba(193,84,31,0.12), transparent 65%);
+  }
+  .model-slot .tag{
+    position:absolute; top:14px; left:14px; font-family:'JetBrains Mono'; font-size:10.5px;
+    color:var(--rust-bright); border:1px solid var(--line-on-dark); padding:5px 10px; border-radius:3px; letter-spacing:0.06em;
+  }
+  .model-slot p{ font-family:'JetBrains Mono'; font-size:12.5px; color:#9C9686; line-height:1.7; max-width:260px; }
+  .model-slot .icon{ font-size:40px; margin-bottom:14px; opacity:0.6; }
+
+  /* trail stat strip under hero */
+  .stat-strip{ display:flex; gap:0; border-top:1px solid var(--line-on-dark); margin-top:6vh; position:relative; z-index:1; }
+  .stat{ flex:1; padding:22px 0; text-align:center; border-right:1px solid var(--line-on-dark); }
+  .stat:last-child{ border-right:none; }
+  .stat .num{ font-family:'Rajdhani'; font-weight:700; font-size:28px; color:var(--rust-bright); }
+  .stat .lab{ font-family:'JetBrains Mono'; font-size:10px; color:#9C9686; text-transform:uppercase; letter-spacing:0.08em; margin-top:2px; }
+
+  section{ padding:9vh 6vw; }
+  .section-head{ max-width:600px; margin-bottom:52px; }
+  .eyebrow{ font-family:'JetBrains Mono'; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--rust); font-weight:600; }
+  .section-title{ font-size:clamp(30px,3.6vw,44px); color:var(--asphalt); margin-top:10px; }
+  .section-sub{ color:var(--ink-soft); margin-top:14px; line-height:1.7; font-size:15.5px; }
+
+  /* SERVICES */
+  .services-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); }
+  .service-cell{ background:var(--sand); padding:32px 26px; }
+  .service-num{ font-family:'JetBrains Mono'; font-size:12px; color:var(--rust); margin-bottom:12px; }
+  .service-cell h3{ font-family:'Rajdhani'; font-weight:700; text-transform:uppercase; font-size:19px; color:var(--asphalt); margin-bottom:8px; }
+  .service-cell p{ font-size:14px; color:var(--ink-soft); line-height:1.6; }
+  .services-note{ font-family:'JetBrains Mono'; font-size:12px; color:var(--ink-soft); margin-top:24px; }
+
+  /* REVIEWS */
+  .reviews-section{ background:var(--olive-deep); color:var(--sand); }
+  .reviews-section .eyebrow{ color:var(--rust-bright); }
+  .reviews-section .section-title{ color:var(--sand); }
+  .rating-hero{ display:flex; align-items:center; gap:30px; margin-bottom:48px; flex-wrap:wrap; }
+  .rating-num{ font-family:'Rajdhani'; font-weight:700; font-size:66px; color:var(--sand); line-height:1; }
+  .rating-meta .stars{ color:var(--rust-bright); font-size:20px; letter-spacing:3px; }
+  .rating-meta p{ font-family:'JetBrains Mono'; font-size:12.5px; color:#C9C3B4; margin-top:6px; }
+  .reviews-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+  .review-card{ background:rgba(237,230,214,0.06); border:1px solid var(--line-on-dark); border-radius:4px; padding:26px; }
+  .review-card .stars{ color:var(--rust-bright); font-size:13px; letter-spacing:2px; margin-bottom:12px; display:block; }
+  .review-card p{ font-size:15px; line-height:1.65; color:#EDE6D6; margin-bottom:16px; }
+  .review-card .who{ font-family:'JetBrains Mono'; font-size:11.5px; color:#9C9686; text-transform:uppercase; letter-spacing:0.04em; }
+  .reviews-link{ margin-top:30px; display:inline-flex; align-items:center; gap:8px; font-weight:700; color:var(--rust-bright); font-size:14px; }
+
+  /* HOURS + LOCAL */
+  .info-grid{ display:grid; grid-template-columns:1fr 1fr; gap:56px; }
+  .hours-row{ display:flex; justify-content:space-between; padding:11px 0; border-bottom:1px solid var(--line); font-family:'JetBrains Mono'; font-size:13px; }
+  .hours-row .day{ color:var(--ink-soft); }
+  .addr-block{ margin-top:24px; font-size:15px; line-height:1.8; color:var(--ink-soft); }
+  .addr-block strong{ display:block; font-family:'Rajdhani'; font-weight:700; text-transform:uppercase; font-size:20px; color:var(--asphalt); margin-bottom:6px; }
+  .map-frame{ border:1px solid var(--line); border-radius:4px; overflow:hidden; min-height:340px; }
+  .map-frame iframe{ width:100%; height:100%; min-height:340px; border:0; }
+
+  /* CTA band */
+  .cta-band{ background:var(--asphalt); color:var(--sand); text-align:center; }
+  .cta-band .eyebrow{ color:var(--rust-bright); }
+  .cta-band h2{ font-size:clamp(30px,3.8vw,48px); margin:14px 0 30px; }
+
+  footer{
+    display:flex; justify-content:space-between; align-items:center; padding:26px 6vw;
+    font-size:12.5px; color:var(--ink-soft); border-top:1px solid var(--line); flex-wrap:wrap; gap:10px;
+  }
+
+  @media (max-width:900px){
+    .hero-grid{ grid-template-columns:1fr; }
+    .model-slot{ order:-1; aspect-ratio:4/3; }
+    .stat-strip{ flex-wrap:wrap; }
+    .stat{ flex:1 1 33%; border-bottom:1px solid var(--line-on-dark); }
+    .services-grid{ grid-template-columns:1fr; }
+    .reviews-grid{ grid-template-columns:1fr; }
+    .info-grid{ grid-template-columns:1fr; }
+    .rating-hero{ flex-direction:column; align-items:flex-start; gap:14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#E06A2C" stroke-width="2.5"/><circle cx="20" cy="20" r="9" fill="none" stroke="#EDE6D6" stroke-width="2"/><circle cx="20" cy="20" r="2.2" fill="#EDE6D6"/></svg>
+    <span>Rodovia Motomecânica</span>
+  </div>
+  <ul>
+    <li><a href="#servicos">Serviços</a></li>
+    <li><a href="#avaliacoes">Avaliações</a></li>
+    <li><a href="#local">Onde estamos</a></li>
+  </ul>
+  <a class="nav-cta" href="https://wa.me/5515991017862" target="_blank">💬 WhatsApp</a>
+  <button class="burger" aria-label="Abrir menu" onclick="document.getElementById('mobileMenu').classList.add('open')">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mobile-menu-head">
+    <div class="brand"><svg class="brand-mark" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#E06A2C" stroke-width="2.5"/><circle cx="20" cy="20" r="9" fill="none" stroke="#EDE6D6" stroke-width="2"/><circle cx="20" cy="20" r="2.2" fill="#EDE6D6"/></svg><span style="font-size:16px;">Rodovia</span></div>
+    <button class="burger" aria-label="Fechar menu" onclick="document.getElementById('mobileMenu').classList.remove('open')">
+      <span style="transform:rotate(45deg) translate(2px,3px);"></span>
+      <span style="opacity:0;"></span>
+      <span style="transform:rotate(-45deg) translate(2px,-3px);"></span>
+    </button>
+  </div>
+  <a href="#servicos" onclick="document.getElementById('mobileMenu').classList.remove('open')">Serviços</a>
+  <a href="#avaliacoes" onclick="document.getElementById('mobileMenu').classList.remove('open')">Avaliações</a>
+  <a href="#local" onclick="document.getElementById('mobileMenu').classList.remove('open')">Onde estamos</a>
+  <a class="nav-cta" href="https://wa.me/5515991017862" target="_blank">💬 Chamar no WhatsApp</a>
+</div>
+
+<section class="hero topo">
+  <div class="hero-grid">
+    <div>
+      <div class="badge-rating"><span class="stars">★★★★★</span> 4.9 NO GOOGLE · 292 AVALIAÇÕES</div>
+      <h1 class="title display">Manutenção pra quem<br>não para na <em>garagem.</em></h1>
+      <p class="sub">Mecânica especializada em motos pra quem roda de verdade — do dia a dia na cidade às trilhas mais longas. Preparo sério pra sua moto aguentar o trajeto.</p>
+      <div class="hero-ctas">
+        <a class="btn-whats" href="https://wa.me/5515991017862" target="_blank">💬 Chamar no WhatsApp</a>
+        <a class="btn-outline" href="#local">Ver localização</a>
+      </div>
+    </div>
+    <div class="model-slot">
+      <span class="tag">MODELO 3D · EM BREVE</span>
+      <div>
+        <div class="icon">🏍️</div>
+        <p>Espaço reservado pro modelo 3D da moto, girando conforme o scroll da página — entra aqui assim que o arquivo estiver pronto.</p>
+      </div>
+    </div>
+  </div>
+  <div class="stat-strip">
+    <div class="stat"><div class="num">292</div><div class="lab">Avaliações</div></div>
+    <div class="stat"><div class="num">4.9</div><div class="lab">Nota Google</div></div>
+    <div class="stat"><div class="num">6 DIAS</div><div class="lab">Por semana aberto</div></div>
+  </div>
+</section>
+
+<div class="tread"></div>
+
+<section id="servicos">
+  <div class="section-head">
+    <span class="eyebrow">// serviços</span>
+    <h2 class="section-title display">Preparo pra estrada e pra trilha</h2>
+    <p class="section-sub">Atendimento pra maioria das marcas e modelos — confirme o serviço específico pelo WhatsApp.</p>
+  </div>
+  <div class="services-grid">
+    <div class="service-cell"><div class="service-num">01</div><h3>Revisão completa</h3><p>Checklist geral da moto antes de qualquer viagem longa.</p></div>
+    <div class="service-cell"><div class="service-num">02</div><h3>Troca de óleo e filtros</h3><p>Óleo, filtro de óleo e ar conforme a marca e modelo.</p></div>
+    <div class="service-cell"><div class="service-num">03</div><h3>Freios e suspensão</h3><p>Pastilhas, discos, amortecedores preparados pra terreno irregular.</p></div>
+    <div class="service-cell"><div class="service-num">04</div><h3>Corrente e transmissão</h3><p>Ajuste, lubrificação e troca de kit de relação.</p></div>
+    <div class="service-cell"><div class="service-num">05</div><h3>Elétrica e injeção</h3><p>Diagnóstico de falhas, bateria e sistema de injeção eletrônica.</p></div>
+    <div class="service-cell"><div class="service-num">06</div><h3>Socorro e resgate</h3><p>Atendimento emergencial pra quem quebrou fora da cidade.</p></div>
+  </div>
+  <p class="services-note">* lista de exemplo — confirmar com a oficina os serviços exatos oferecidos antes de publicar</p>
+</section>
+
+<section id="avaliacoes" class="reviews-section">
+  <div class="section-head">
+    <span class="eyebrow">// avaliações reais</span>
+    <h2 class="section-title display">O que dizem no Google</h2>
+  </div>
+  <div class="rating-hero">
+    <div class="rating-num">4.9</div>
+    <div class="rating-meta">
+      <div class="stars">★★★★★</div>
+      <p>292 AVALIAÇÕES NO GOOGLE MAPS</p>
+    </div>
+  </div>
+  <div class="reviews-grid">
+    <div class="review-card">
+      <span class="stars">★★★★★</span>
+      <p>Um cliente lutador de MMA conta que depende da moto no dia a dia e saiu de lá com total confiança no serviço — recomenda fortemente a oficina.</p>
+      <div class="who">— avaliação real no Google</div>
+    </div>
+    <div class="review-card">
+      <span class="stars">★★★★★</span>
+      <p>Outro cliente, de Itu, relata que quebrou a moto a mais de 30km e foi socorrido às 21h — mesmo com a oficina fechando às 22h. Preço justo e atendimento rápido.</p>
+      <div class="who">— avaliação real no Google</div>
+    </div>
+  </div>
+  <a class="reviews-link" href="https://maps.google.com/?cid=15123791426952779007" target="_blank">Ver todas as avaliações no Google →</a>
+</section>
+
+<div class="tread"></div>
+
+<section id="local">
+  <div class="section-head">
+    <span class="eyebrow">// onde estamos</span>
+    <h2 class="section-title display">Jardim Santo Amaro, Sorocaba</h2>
+  </div>
+  <div class="info-grid">
+    <div>
+      <div class="hours-row"><span class="day">Segunda</span><span>13h — 19h</span></div>
+      <div class="hours-row"><span class="day">Terça a sexta</span><span>10h — 19h</span></div>
+      <div class="hours-row"><span class="day">Sábado</span><span>10h — 16h</span></div>
+      <div class="hours-row"><span class="day">Domingo</span><span>Fechado</span></div>
+      <div class="addr-block">
+        <strong>Rodovia Motomecânica</strong>
+        R. Antenor Francelino da Silva, 146 — Jardim Santo Amaro<br>
+        Sorocaba — SP, 18074-675<br><br>
+        WhatsApp: (15) 99101-7862
+      </div>
+      <a class="btn-whats" style="margin-top:22px;" href="https://wa.me/5515991017862" target="_blank">💬 Chamar no WhatsApp</a>
+    </div>
+    <div class="map-frame">
+      <iframe loading="lazy" src="https://www.google.com/maps?q=Rodovia+Moto+Mec%C3%A2nica+Sorocaba&output=embed"></iframe>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <span class="eyebrow">// fale com a gente</span>
+  <h2 class="display">Sua moto pronta<br>pra próxima trilha.</h2>
+  <a class="btn-whats" href="https://wa.me/5515991017862" target="_blank">💬 Chamar no WhatsApp</a>
+</section>
+
+<footer>
+  <span>© Rodovia Motomecânica — protótipo de demonstração</span>
+  <span>feito para apresentação, ainda não publicado</span>
+</footer>
+
+</body>
+</html>
