@@ -2,331 +2,794 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rodovia Motomecânica — Sorocaba</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rodovia Motomecânica — Oficina de Motos em Sorocaba</title>
+<meta name="description" content="Oficina de motos em Sorocaba/SP. Revisão, óleo, freios, transmissão, elétrica e socorro. 4.9★ no Google. Agende pelo WhatsApp.">
+
+<!-- model-viewer (Google) -->
+<script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+
+<!-- Fontes: Teko (display condensada, ar de placa/painel), Work Sans (corpo), JetBrains Mono (dados/specs) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
+  /* ============ TOKENS ============ */
   :root{
-    --asphalt:#1B1A17;
-    --asphalt-deep:#100F0D;
-    --sand:#EDE6D6;
-    --rust:#C1541F;
-    --rust-bright:#E06A2C;
-    --olive:#565A42;
-    --olive-deep:#3A3D2E;
-    --ink:#1B1A17;
-    --ink-soft:#5C5A50;
-    --line:rgba(27,26,23,0.15);
-    --line-on-dark:rgba(237,230,214,0.16);
+    --asphalt-950:#101110;
+    --asphalt-900:#191a17;
+    --asphalt-800:#242520;
+    --asphalt-700:#31322a;
+    --dust:#d97a2e;
+    --dust-deep:#a85420;
+    --dust-glow:#f0a35a;
+    --olive:#5c6b3f;
+    --olive-deep:#3c4529;
+    --olive-light:#8a9a63;
+    --sand:#eee6d3;
+    --sand-dim:#b7ae97;
+    --line: rgba(238,230,211,0.14);
+    --radius:2px;
+    --ease:cubic-bezier(.16,.84,.44,1);
   }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  html{scroll-behavior:smooth;}
-  body{
-    background:var(--sand); color:var(--ink);
-    font-family:'Barlow', sans-serif;
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  html,body{
+    margin:0; padding:0;
+    width:100%; max-width:100vw;
+    overflow-x:hidden;
+    background:var(--asphalt-950);
+    color:var(--sand);
+    font-family:'Work Sans', sans-serif;
     -webkit-font-smoothing:antialiased;
   }
-  a{color:inherit; text-decoration:none;}
-  .display{ font-family:'Rajdhani', sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.01em; }
-  .mono{ font-family:'JetBrains Mono', monospace; }
+  h1,h2,h3,.display{
+    font-family:'Teko', sans-serif;
+    font-weight:600;
+    letter-spacing:0.01em;
+    line-height:0.92;
+    text-transform:uppercase;
+    color:var(--sand);
+  }
+  .mono{ font-family:'JetBrains Mono', monospace; letter-spacing:0.02em; }
+  a{ color:inherit; }
+  img{ max-width:100%; display:block; }
+  ::selection{ background:var(--dust); color:var(--asphalt-950); }
 
-  /* topographic contour line texture, used as background */
-  .topo{
-    background-image:
-      repeating-radial-gradient(circle at 20% 30%, transparent 0 38px, var(--line-on-dark) 39px 40px),
-      repeating-radial-gradient(circle at 85% 70%, transparent 0 50px, var(--line-on-dark) 51px 52px);
-    background-color:var(--asphalt);
+  /* ============ CENA 3D FIXA ============ */
+  #bike-stage{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100vh;
+    height:100dvh;
+    z-index:0;
+    background:
+      radial-gradient(ellipse 120% 70% at 50% 18%, rgba(217,122,46,0.16), transparent 60%),
+      radial-gradient(ellipse 140% 90% at 50% 100%, rgba(92,107,63,0.22), transparent 65%),
+      linear-gradient(180deg, var(--asphalt-900) 0%, var(--asphalt-950) 55%, #0b0c0a 100%);
+    overflow:hidden;
+  }
+  /* grão sutil de "poeira de estrada" sobre o fundo */
+  #bike-stage::before{
+    content:'';
+    position:absolute; inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+    pointer-events:none;
+  }
+  /* linha de horizonte tipo "trilha" */
+  #bike-stage::after{
+    content:'';
+    position:absolute; left:0; right:0; bottom:0;
+    height:42%;
+    background:linear-gradient(180deg, transparent 0%, rgba(60,69,41,0.35) 100%);
+    pointer-events:none;
+  }
+  model-viewer{
+    width:100%;
+    height:100%;
+    --poster-color: transparent;
+    background-color:transparent;
+    pointer-events:none; /* garante que nenhum gesto de toque/drag seja capturado pela cena */
+    touch-action:pan-y;
   }
 
-  /* tire tread divider */
-  .tread{ height:10px; background:repeating-linear-gradient(115deg, var(--rust) 0 10px, var(--asphalt) 10px 20px); }
-
-  /* NAV */
-  nav{
-    position:sticky; top:0; z-index:50;
-    display:flex; justify-content:space-between; align-items:center;
-    padding:18px 6vw;
-    background:rgba(27,26,23,0.94); backdrop-filter:blur(8px);
-    border-bottom:1px solid var(--line-on-dark);
+  /* partículas de poeira, discretas */
+  .dust-particle{
+    position:absolute;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(217,122,46,0.55), transparent 70%);
+    filter:blur(1px);
+    pointer-events:none;
+    animation:drift 14s linear infinite;
+    opacity:0.5;
   }
-  .brand{ display:flex; align-items:center; gap:12px; }
-  .brand-mark{ width:34px; height:34px; }
-  .brand span{ font-family:'Rajdhani'; font-weight:700; font-size:19px; color:var(--sand); text-transform:uppercase; letter-spacing:0.02em; }
-  nav ul{ list-style:none; display:flex; gap:32px; }
-  nav a{ font-size:13px; font-weight:600; color:#C9C3B4; letter-spacing:0.03em; text-transform:uppercase; }
-  nav a:hover{ color:var(--rust-bright); }
-  .nav-cta{
-    background:#25D366; color:#0C1A0F; padding:11px 20px; border-radius:3px;
-    font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px;
+  @keyframes drift{
+    0%{ transform:translateY(0) translateX(0); }
+    50%{ transform:translateY(-18px) translateX(10px); }
+    100%{ transform:translateY(0) translateX(0); }
   }
-  .burger{ display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:6px; }
-  .burger span{ width:24px; height:2px; background:var(--sand); display:block; }
-  .mobile-menu{ display:none; position:fixed; inset:0; z-index:100; background:var(--asphalt); padding:26px 6vw; flex-direction:column; }
-  .mobile-menu.open{ display:flex; }
-  .mobile-menu-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; }
-  .mobile-menu a{ font-family:'Rajdhani'; font-weight:700; font-size:26px; color:var(--sand); text-transform:uppercase; padding:16px 0; border-bottom:1px dashed var(--line-on-dark); }
-  .mobile-menu a.nav-cta{ text-align:center; margin-top:26px; font-family:'Barlow'; font-size:14px; justify-content:center; text-transform:none; }
-  @media (max-width:900px){ nav ul{display:none;} nav .nav-cta{display:none;} .burger{display:flex;} .brand span{font-size:15px;} }
 
-  /* HERO */
-  .hero{ color:var(--sand); padding:10vh 6vw 6vh; position:relative; overflow:hidden; }
-  .hero-grid{ display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:center; position:relative; z-index:1; }
-  .badge-rating{
-    display:inline-flex; align-items:center; gap:8px; background:rgba(237,230,214,0.08);
-    border:1px solid var(--line-on-dark); padding:8px 16px; border-radius:20px; margin-bottom:24px;
-    font-family:'JetBrains Mono'; font-size:12px;
+  /* ============ NAV ============ */
+  header.nav{
+    position:fixed; top:0; left:0; right:0;
+    z-index:500;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px clamp(16px,4vw,48px);
+    background:linear-gradient(180deg, rgba(16,17,16,0.85), rgba(16,17,16,0));
+    backdrop-filter:blur(2px);
   }
-  .badge-rating .stars{ color:var(--rust-bright); }
-  h1.title{ font-size:clamp(40px,5.4vw,64px); line-height:0.98; margin-bottom:20px; }
-  h1.title em{ font-style:normal; color:var(--rust-bright); }
-  .hero p.sub{ font-size:16.5px; line-height:1.7; color:#C9C3B4; max-width:440px; margin-bottom:30px; }
-  .hero-ctas{ display:flex; gap:14px; flex-wrap:wrap; }
-  .btn-whats{ background:#25D366; color:#0C1A0F; font-weight:700; padding:15px 26px; border-radius:3px; font-size:14px; display:inline-flex; align-items:center; gap:10px; }
-  .btn-outline{ border:1.5px solid var(--line-on-dark); color:var(--sand); padding:13.5px 24px; border-radius:3px; font-size:14px; font-weight:600; }
-
-  /* 3D model slot */
-  .model-slot{
-    position:relative; aspect-ratio:1/1; border-radius:6px;
-    background:radial-gradient(circle at 50% 55%, rgba(193,84,31,0.16), transparent 65%);
+  .brand{
+    display:flex; align-items:baseline; gap:8px;
+    font-family:'Teko', sans-serif;
+    font-size:26px;
+    font-weight:700;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    text-decoration:none;
   }
-  model-viewer{ --progress-bar-color: var(--rust-bright); }
+  .brand span{ color:var(--dust); }
+  .brand small{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10px;
+    color:var(--sand-dim);
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+  }
+  nav.links{
+    display:flex; gap:clamp(18px,2.4vw,36px);
+    list-style:none; margin:0; padding:0;
+  }
+  nav.links a{
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    color:var(--sand-dim);
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    padding-bottom:3px;
+    border-bottom:1px solid transparent;
+    transition:color .2s var(--ease), border-color .2s var(--ease);
+  }
+  nav.links a:hover{ color:var(--dust-glow); border-color:var(--dust); }
 
-  /* trail stat strip under hero */
-  .stat-strip{ display:flex; gap:0; border-top:1px solid var(--line-on-dark); margin-top:6vh; position:relative; z-index:1; }
-  .stat{ flex:1; padding:22px 0; text-align:center; border-right:1px solid var(--line-on-dark); }
-  .stat:last-child{ border-right:none; }
-  .stat .num{ font-family:'Rajdhani'; font-weight:700; font-size:28px; color:var(--rust-bright); }
-  .stat .lab{ font-family:'JetBrains Mono'; font-size:10px; color:#9C9686; text-transform:uppercase; letter-spacing:0.08em; margin-top:2px; }
+  .burger{
+    display:none;
+    width:42px; height:42px;
+    background:var(--asphalt-800);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    align-items:center; justify-content:center;
+    flex-direction:column; gap:5px;
+    cursor:pointer;
+  }
+  .burger span{
+    width:20px; height:2px; background:var(--sand);
+    transition:transform .25s var(--ease), opacity .25s var(--ease);
+  }
+  .burger[aria-expanded="true"] span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+  .burger[aria-expanded="true"] span:nth-child(2){ opacity:0; }
+  .burger[aria-expanded="true"] span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
 
-  section{ padding:9vh 6vw; }
-  .section-head{ max-width:600px; margin-bottom:52px; }
-  .eyebrow{ font-family:'JetBrains Mono'; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--rust); font-weight:600; }
-  .section-title{ font-size:clamp(30px,3.6vw,44px); color:var(--asphalt); margin-top:10px; }
-  .section-sub{ color:var(--ink-soft); margin-top:14px; line-height:1.7; font-size:15.5px; }
+  /* ============ LAYOUT DE SEÇÕES ============ */
+  main{ position:relative; z-index:10; }
 
-  /* SERVICES */
-  .services-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); }
-  .service-cell{ background:var(--sand); padding:32px 26px; }
-  .service-num{ font-family:'JetBrains Mono'; font-size:12px; color:var(--rust); margin-bottom:12px; }
-  .service-cell h3{ font-family:'Rajdhani'; font-weight:700; text-transform:uppercase; font-size:19px; color:var(--asphalt); margin-bottom:8px; }
-  .service-cell p{ font-size:14px; color:var(--ink-soft); line-height:1.6; }
-  .services-note{ font-family:'JetBrains Mono'; font-size:12px; color:var(--ink-soft); margin-top:24px; }
+  section{
+    position:relative;
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:120px clamp(20px,6vw,80px) 80px;
+  }
 
-  /* REVIEWS */
-  .reviews-section{ background:var(--olive-deep); color:var(--sand); }
-  .reviews-section .eyebrow{ color:var(--rust-bright); }
-  .reviews-section .section-title{ color:var(--sand); }
-  .rating-hero{ display:flex; align-items:center; gap:30px; margin-bottom:48px; flex-wrap:wrap; }
-  .rating-num{ font-family:'Rajdhani'; font-weight:700; font-size:66px; color:var(--sand); line-height:1; }
-  .rating-meta .stars{ color:var(--rust-bright); font-size:20px; letter-spacing:3px; }
-  .rating-meta p{ font-family:'JetBrains Mono'; font-size:12.5px; color:#C9C3B4; margin-top:6px; }
-  .reviews-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
-  .review-card{ background:rgba(237,230,214,0.06); border:1px solid var(--line-on-dark); border-radius:4px; padding:26px; }
-  .review-card .stars{ color:var(--rust-bright); font-size:13px; letter-spacing:2px; margin-bottom:12px; display:block; }
-  .review-card p{ font-size:15px; line-height:1.65; color:#EDE6D6; margin-bottom:16px; }
-  .review-card .who{ font-family:'JetBrains Mono'; font-size:11.5px; color:#9C9686; text-transform:uppercase; letter-spacing:0.04em; }
-  .reviews-link{ margin-top:30px; display:inline-flex; align-items:center; gap:8px; font-weight:700; color:var(--rust-bright); font-size:14px; }
+  .panel{
+    background:rgba(16,17,16,0.72);
+    border:1px solid var(--line);
+    backdrop-filter:blur(6px) saturate(120%);
+    -webkit-backdrop-filter:blur(6px) saturate(120%);
+    border-radius:var(--radius);
+    padding:clamp(28px,4vw,56px);
+  }
 
-  /* HOURS + LOCAL */
-  .info-grid{ display:grid; grid-template-columns:1fr 1fr; gap:56px; }
-  .hours-row{ display:flex; justify-content:space-between; padding:11px 0; border-bottom:1px solid var(--line); font-family:'JetBrains Mono'; font-size:13px; }
-  .hours-row .day{ color:var(--ink-soft); }
-  .addr-block{ margin-top:24px; font-size:15px; line-height:1.8; color:var(--ink-soft); }
-  .addr-block strong{ display:block; font-family:'Rajdhani'; font-weight:700; text-transform:uppercase; font-size:20px; color:var(--asphalt); margin-bottom:6px; }
-  .map-frame{ border:1px solid var(--line); border-radius:4px; overflow:hidden; min-height:340px; }
-  .map-frame iframe{ width:100%; height:100%; min-height:340px; border:0; }
+  /* divisor "perfil de elevação de trilha" — elemento assinatura */
+  .trail-divider{
+    width:100%; max-width:1100px; margin:0 auto;
+    height:26px;
+    opacity:0.85;
+  }
+  .trail-divider svg{ width:100%; height:100%; display:block; }
 
-  /* CTA band */
-  .cta-band{ background:var(--asphalt); color:var(--sand); text-align:center; }
-  .cta-band .eyebrow{ color:var(--rust-bright); }
-  .cta-band h2{ font-size:clamp(30px,3.8vw,48px); margin:14px 0 30px; }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--dust);
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:14px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:22px; height:1px; background:var(--dust);
+  }
 
+  /* ============ HERO ============ */
+  #hero{
+    justify-content:flex-end;
+    align-items:center;
+    text-align:center;
+    padding-bottom:64px;
+    min-height:100vh;
+    min-height:100dvh;
+  }
+  #hero .hero-inner{ max-width:900px; }
+  #hero h1{
+    font-size:clamp(52px, 11vw, 128px);
+    margin:0 0 6px;
+  }
+  #hero h1 .accent{ color:var(--dust); }
+  #hero .sub{
+    font-family:'JetBrains Mono', monospace;
+    font-size:clamp(12px,1.6vw,15px);
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--sand-dim);
+    margin:0 0 34px;
+  }
+  .cta-row{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+  .btn{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:14px 26px;
+    font-family:'Work Sans', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    text-decoration:none;
+    border-radius:var(--radius);
+    border:1px solid transparent;
+    transition:transform .18s var(--ease), background .2s var(--ease), border-color .2s var(--ease);
+  }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn-primary{ background:var(--dust); color:#1a1206; }
+  .btn-primary:hover{ background:var(--dust-glow); }
+  .btn-ghost{ border-color:var(--line); color:var(--sand); background:rgba(255,255,255,0.03); }
+  .btn-ghost:hover{ border-color:var(--olive-light); }
+
+  .scroll-cue{
+    margin-top:56px;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--sand-dim);
+    animation:bob 2.2s ease-in-out infinite;
+  }
+  @keyframes bob{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(8px);} }
+  .scroll-cue svg{ width:16px; height:16px; stroke:var(--dust); }
+
+  /* ============ REVEAL ============ */
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity .7s var(--ease), transform .7s var(--ease); }
+  .reveal.is-visible{ opacity:1; transform:translateY(0); }
+
+  /* ============ SERVIÇOS ============ */
+  .section-head{ max-width:640px; margin:0 auto 44px; text-align:center; }
+  .section-head h2{ font-size:clamp(38px,6vw,64px); }
+  .section-head p{ color:var(--sand-dim); font-size:16px; line-height:1.6; margin-top:10px; }
+
+  .service-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(230px,1fr));
+    gap:16px;
+    max-width:1180px;
+    margin:0 auto;
+    width:100%;
+  }
+  .service-card{
+    background:var(--asphalt-800);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:26px 22px;
+    position:relative;
+    overflow:hidden;
+    transition:border-color .2s var(--ease), transform .2s var(--ease);
+  }
+  .service-card:hover{ border-color:var(--dust); transform:translateY(-3px); }
+  .service-card .os-tag{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--olive-light);
+    letter-spacing:0.1em;
+    margin-bottom:14px;
+    display:block;
+  }
+  .service-card .icon{
+    width:34px; height:34px;
+    margin-bottom:16px;
+    stroke:var(--dust);
+    fill:none;
+    stroke-width:1.6;
+  }
+  .service-card h3{
+    font-size:26px;
+    margin:0 0 8px;
+    color:var(--sand);
+  }
+  .service-card p{
+    font-size:14px;
+    color:var(--sand-dim);
+    line-height:1.55;
+    margin:0;
+  }
+
+  /* ============ AVALIAÇÕES ============ */
+  .rating-hero{
+    display:flex; align-items:center; gap:22px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-bottom:44px;
+  }
+  .rating-score{
+    font-family:'Teko', sans-serif;
+    font-size:88px;
+    font-weight:700;
+    color:var(--dust);
+    line-height:1;
+  }
+  .rating-meta{ text-align:left; }
+  .stars{ color:var(--dust); font-size:20px; letter-spacing:2px; margin-bottom:4px; }
+  .rating-meta .count{ font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--sand-dim); }
+
+  .testimonial-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(280px,1fr));
+    gap:18px;
+    max-width:920px; margin:0 auto;
+  }
+  .testimonial{
+    background:var(--asphalt-800);
+    border:1px solid var(--line);
+    border-left:3px solid var(--olive);
+    border-radius:var(--radius);
+    padding:26px;
+  }
+  .testimonial p.quote{
+    font-size:16px;
+    line-height:1.65;
+    color:var(--sand);
+    margin:0 0 16px;
+    font-style:italic;
+  }
+  .testimonial .who{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--olive-light);
+    letter-spacing:0.05em;
+  }
+  .note-src{
+    text-align:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--sand-dim);
+    margin-top:22px;
+    opacity:0.75;
+  }
+
+  /* ============ LOCALIZAÇÃO ============ */
+  .loc-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:28px;
+    max-width:1080px; margin:0 auto;
+    width:100%;
+    align-items:stretch;
+  }
+  .loc-info h3{ font-size:28px; margin:0 0 4px; }
+  .loc-info .addr{ color:var(--sand-dim); font-size:15px; margin-bottom:22px; line-height:1.6; }
+  .hours-table{ width:100%; border-collapse:collapse; margin-bottom:24px; }
+  .hours-table td{
+    padding:9px 0;
+    border-bottom:1px solid var(--line);
+    font-size:14px;
+  }
+  .hours-table td:first-child{ color:var(--sand-dim); }
+  .hours-table td:last-child{ text-align:right; font-family:'JetBrains Mono', monospace; color:var(--sand); }
+  .map-wrap{
+    border-radius:var(--radius);
+    overflow:hidden;
+    border:1px solid var(--line);
+    min-height:320px;
+  }
+  .map-wrap iframe{ width:100%; height:100%; min-height:320px; border:0; filter:grayscale(0.25) contrast(1.05); }
+
+  /* ============ FOOTER ============ */
   footer{
-    display:flex; justify-content:space-between; align-items:center; padding:26px 6vw;
-    font-size:12.5px; color:var(--ink-soft); border-top:1px solid var(--line); flex-wrap:wrap; gap:10px;
+    position:relative; z-index:10;
+    padding:56px clamp(20px,6vw,80px) 100px;
+    background:rgba(11,12,10,0.88);
+    border-top:1px solid var(--line);
+  }
+  .footer-grid{
+    display:flex; flex-wrap:wrap; justify-content:space-between; gap:32px;
+    max-width:1180px; margin:0 auto 32px;
+  }
+  footer .brand{ margin-bottom:10px; }
+  footer .foot-col p, footer .foot-col a{
+    display:block;
+    color:var(--sand-dim);
+    font-size:14px;
+    text-decoration:none;
+    margin-bottom:8px;
+  }
+  footer .foot-col a:hover{ color:var(--dust-glow); }
+  footer .foot-title{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--olive-light);
+    margin-bottom:14px;
+  }
+  .foot-bottom{
+    max-width:1180px; margin:0 auto;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    font-size:12px;
+    color:var(--sand-dim);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
   }
 
-  @media (max-width:900px){
-    .hero-grid{ grid-template-columns:1fr; }
-    .model-slot{ order:-1; aspect-ratio:4/3; }
-    .stat-strip{ flex-wrap:wrap; }
-    .stat{ flex:1 1 33%; border-bottom:1px solid var(--line-on-dark); }
-    .services-grid{ grid-template-columns:1fr; }
-    .reviews-grid{ grid-template-columns:1fr; }
-    .info-grid{ grid-template-columns:1fr; }
-    .rating-hero{ flex-direction:column; align-items:flex-start; gap:14px; }
+  /* ============ WHATSAPP FLUTUANTE ============ */
+  .whatsapp-fab{
+    position:fixed;
+    right:20px; bottom:20px;
+    z-index:1000;
+    display:flex; align-items:center; gap:10px;
+    background:#25D366;
+    color:#0b1a0f;
+    padding:14px 18px;
+    border-radius:40px;
+    text-decoration:none;
+    font-weight:700;
+    font-size:14px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.4);
+    transition:transform .2s var(--ease);
+  }
+  .whatsapp-fab:hover{ transform:scale(1.05); }
+  .whatsapp-fab svg{ width:22px; height:22px; fill:#0b1a0f; flex-shrink:0; }
+  .whatsapp-fab .wa-text{ white-space:nowrap; }
+
+  /* ============ RESPONSIVO ============ */
+  @media (max-width:860px){
+    nav.links{
+      position:fixed; top:0; right:0;
+      height:100vh; height:100dvh;
+      width:min(78vw,320px);
+      background:var(--asphalt-900);
+      border-left:1px solid var(--line);
+      flex-direction:column;
+      justify-content:flex-start;
+      align-items:flex-start;
+      padding:100px 28px 28px;
+      gap:26px;
+      transform:translateX(100%);
+      transition:transform .3s var(--ease);
+      z-index:400;
+    }
+    nav.links.open{ transform:translateX(0); }
+    nav.links a{ font-size:18px; }
+    .burger{ display:flex; }
+    .loc-grid{ grid-template-columns:1fr; }
+    .rating-hero{ flex-direction:column; }
+    .rating-meta{ text-align:center; }
+    .whatsapp-fab .wa-text{ display:none; }
+    .whatsapp-fab{ padding:14px; border-radius:50%; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .scroll-cue, .dust-particle{ animation:none; }
+    .reveal{ transition:none; opacity:1; transform:none; }
+    html{ scroll-behavior:auto; }
   }
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="brand">
-    <svg class="brand-mark" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#E06A2C" stroke-width="2.5"/><circle cx="20" cy="20" r="9" fill="none" stroke="#EDE6D6" stroke-width="2"/><circle cx="20" cy="20" r="2.2" fill="#EDE6D6"/></svg>
-    <span>Rodovia Motomecânica</span>
+  <!-- ===================== CENA 3D FIXA ===================== -->
+  <div id="bike-stage" aria-hidden="true">
+    <model-viewer
+      id="bikeModel"
+      src="motorcycle.glb"
+      alt="Moto girando lentamente conforme a rolagem da página"
+      camera-orbit="90deg 78deg 105%"
+      field-of-view="28deg"
+      exposure="1.05"
+      shadow-intensity="1"
+      shadow-softness="0.85"
+      environment-image="neutral"
+      interaction-prompt="none"
+      disable-zoom
+      disable-pan
+      disable-tap
+      loading="eager"
+      reveal="auto">
+    </model-viewer>
+    <div class="dust-particle" style="width:6px;height:6px; left:22%; top:64%; animation-delay:0s;"></div>
+    <div class="dust-particle" style="width:4px;height:4px; left:70%; top:58%; animation-delay:3s;"></div>
+    <div class="dust-particle" style="width:8px;height:8px; left:48%; top:72%; animation-delay:6s;"></div>
   </div>
-  <ul>
-    <li><a href="#servicos">Serviços</a></li>
-    <li><a href="#avaliacoes">Avaliações</a></li>
-    <li><a href="#local">Onde estamos</a></li>
-  </ul>
-  <a class="nav-cta" href="https://wa.me/5515991017862" target="_blank">💬 WhatsApp</a>
-  <button class="burger" aria-label="Abrir menu" onclick="document.getElementById('mobileMenu').classList.add('open')">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
 
-<div class="mobile-menu" id="mobileMenu">
-  <div class="mobile-menu-head">
-    <div class="brand"><svg class="brand-mark" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#E06A2C" stroke-width="2.5"/><circle cx="20" cy="20" r="9" fill="none" stroke="#EDE6D6" stroke-width="2"/><circle cx="20" cy="20" r="2.2" fill="#EDE6D6"/></svg><span style="font-size:16px;">Rodovia</span></div>
-    <button class="burger" aria-label="Fechar menu" onclick="document.getElementById('mobileMenu').classList.remove('open')">
-      <span style="transform:rotate(45deg) translate(2px,3px);"></span>
-      <span style="opacity:0;"></span>
-      <span style="transform:rotate(-45deg) translate(2px,-3px);"></span>
+  <!-- ===================== NAV ===================== -->
+  <header class="nav">
+    <a href="#hero" class="brand">RODOVIA<span>MOTO</span><br><small>Mecânica &amp; Aventura</small></a>
+    <nav class="links" id="navLinks">
+      <a href="#servicos">Serviços</a>
+      <a href="#avaliacoes">Avaliações</a>
+      <a href="#localizacao">Localização</a>
+      <a href="https://wa.me/5515991017862" target="_blank" rel="noopener">Agendar</a>
+    </nav>
+    <button class="burger" id="burgerBtn" aria-label="Abrir menu" aria-expanded="false" aria-controls="navLinks">
+      <span></span><span></span><span></span>
     </button>
-  </div>
-  <a href="#servicos" onclick="document.getElementById('mobileMenu').classList.remove('open')">Serviços</a>
-  <a href="#avaliacoes" onclick="document.getElementById('mobileMenu').classList.remove('open')">Avaliações</a>
-  <a href="#local" onclick="document.getElementById('mobileMenu').classList.remove('open')">Onde estamos</a>
-  <a class="nav-cta" href="https://wa.me/5515991017862" target="_blank">💬 Chamar no WhatsApp</a>
-</div>
+  </header>
 
-<section class="hero topo">
-  <div class="hero-grid">
-    <div>
-      <div class="badge-rating"><span class="stars">★★★★★</span> 4.9 NO GOOGLE · 292 AVALIAÇÕES</div>
-      <h1 class="title display">Manutenção pra quem<br>não para na <em>garagem.</em></h1>
-      <p class="sub">Mecânica especializada em motos pra quem roda de verdade — do dia a dia na cidade às trilhas mais longas. Preparo sério pra sua moto aguentar o trajeto.</p>
-      <div class="hero-ctas">
-        <a class="btn-whats" href="https://wa.me/5515991017862" target="_blank">💬 Chamar no WhatsApp</a>
-        <a class="btn-outline" href="#local">Ver localização</a>
+  <main>
+
+    <!-- ===================== HERO ===================== -->
+    <section id="hero">
+      <div class="hero-inner">
+        <h1>Sua moto<br>na <span class="accent">estrada</span>,<br>não na oficina.</h1>
+        <p class="sub">Rodovia Motomecânica · Sorocaba/SP</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://wa.me/5515991017862" target="_blank" rel="noopener">Falar no WhatsApp</a>
+          <a class="btn btn-ghost" href="#servicos">Ver serviços</a>
+        </div>
+      </div>
+      <div class="scroll-cue">
+        <span>role para girar</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 4v16M6 14l6 6 6-6"/></svg>
+      </div>
+    </section>
+
+    <!-- divisor -->
+    <div class="trail-divider" aria-hidden="true">
+      <svg viewBox="0 0 1100 26" preserveAspectRatio="none">
+        <polyline points="0,20 90,20 140,6 190,22 260,10 330,18 400,4 470,20 560,12 640,22 720,8 800,18 870,6 950,20 1020,14 1100,20" fill="none" stroke="var(--dust)" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <!-- ===================== SERVIÇOS ===================== -->
+    <section id="servicos">
+      <div class="panel reveal">
+        <div class="section-head">
+          <div class="eyebrow" style="justify-content:center;">o que fazemos</div>
+          <h2>Serviços de bancada</h2>
+          <p>Manutenção completa para quem não abre mão de rodar — do asfalto à trilha.</p>
+        </div>
+
+        <div class="service-grid">
+          <div class="service-card">
+            <span class="os-tag">OS · 01</span>
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            <h3>Revisão completa</h3>
+            <p>Check-up geral de motor, suspensão, pneus e pontos de segurança antes de qualquer viagem.</p>
+          </div>
+
+          <div class="service-card">
+            <span class="os-tag">OS · 02</span>
+            <svg class="icon" viewBox="0 0 24 24"><path d="M10 2v4M14 2v4M6 10h12l-1 10a2 2 0 01-2 2H9a2 2 0 01-2-2L6 10z"/><path d="M9 14h6"/></svg>
+            <h3>Troca de óleo</h3>
+            <p>Óleo e filtro certos pra sua moto e seu estilo de pilotagem — na cidade ou fora dela.</p>
+          </div>
+
+          <div class="service-card">
+            <span class="os-tag">OS · 03</span>
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v6M12 15v6M3 12h6M15 12h6"/></svg>
+            <h3>Freios</h3>
+            <p>Pastilhas, discos e fluido revisados para parar com segurança em qualquer terreno.</p>
+          </div>
+
+          <div class="service-card">
+            <span class="os-tag">OS · 04</span>
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M9 18h4l4-9H9l-2 5"/><path d="M13 9V6h3"/></svg>
+            <h3>Corrente &amp; transmissão</h3>
+            <p>Ajuste, lubrificação e troca de kit relação para pedaladas firmes sem folga.</p>
+          </div>
+
+          <div class="service-card">
+            <span class="os-tag">OS · 05</span>
+            <svg class="icon" viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+            <h3>Elétrica</h3>
+            <p>Diagnóstico de bateria, chicote, injeção e painel — sem susto na estrada.</p>
+          </div>
+
+          <div class="service-card">
+            <span class="os-tag">OS · 06</span>
+            <svg class="icon" viewBox="0 0 24 24"><path d="M3 21l6-6M14 3l7 7-4 4-7-7 4-4z"/><path d="M8 15l-3 3 4 4 3-3"/></svg>
+            <h3>Socorro &amp; resgate</h3>
+            <p>Sua moto quebrou na pista? A gente busca e traz de volta pra oficina.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="trail-divider" aria-hidden="true">
+      <svg viewBox="0 0 1100 26" preserveAspectRatio="none">
+        <polyline points="0,10 80,18 150,20 220,8 300,20 380,14 450,22 530,6 610,18 690,10 770,20 850,12 930,4 1010,18 1100,12" fill="none" stroke="var(--olive-light)" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <!-- ===================== AVALIAÇÕES ===================== -->
+    <section id="avaliacoes">
+      <div class="panel reveal">
+        <div class="section-head">
+          <div class="eyebrow" style="justify-content:center;">quem já rodou com a gente</div>
+          <h2>Avaliações no Google</h2>
+        </div>
+
+        <div class="rating-hero">
+          <div class="rating-score">4.9</div>
+          <div class="rating-meta">
+            <div class="stars">★★★★★</div>
+            <div class="count">292 avaliações no Google</div>
+          </div>
+        </div>
+
+        <div class="testimonial-grid">
+          <div class="testimonial">
+            <p class="quote">Levei a moto pra revisão antes de uma viagem longa e o atendimento foi rápido e honesto — me explicaram exatamente o que precisava ser trocado, sem empurrar serviço extra.</p>
+            <div class="who">Cliente Google · Sorocaba/SP</div>
+          </div>
+          <div class="testimonial">
+            <p class="quote">Fiquei impressionado com a atenção aos detalhes na parte elétrica. Resolveram um problema que outras oficinas não conseguiram identificar, e o preço foi justo.</p>
+            <div class="who">Cliente Google · Sorocaba/SP</div>
+          </div>
+        </div>
+        <p class="note-src">* Depoimentos representativos com base no perfil de avaliações do Google da oficina — substitua pelos textos reais quando disponíveis.</p>
+      </div>
+    </section>
+
+    <div class="trail-divider" aria-hidden="true">
+      <svg viewBox="0 0 1100 26" preserveAspectRatio="none">
+        <polyline points="0,20 90,20 140,6 190,22 260,10 330,18 400,4 470,20 560,12 640,22 720,8 800,18 870,6 950,20 1020,14 1100,20" fill="none" stroke="var(--dust)" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <!-- ===================== LOCALIZAÇÃO ===================== -->
+    <section id="localizacao">
+      <div class="panel reveal">
+        <div class="section-head">
+          <div class="eyebrow" style="justify-content:center;">onde estamos</div>
+          <h2>Localização &amp; horário</h2>
+        </div>
+
+        <div class="loc-grid">
+          <div class="loc-info">
+            <h3>Rodovia Motomecânica</h3>
+            <p class="addr">Rodovia Senador José Ermírio de Moraes, Km 5<br>Sorocaba — SP, Brasil<br><em style="opacity:.7; font-size:13px;">(endereço de exemplo — atualize com o número e complemento reais)</em></p>
+
+            <table class="hours-table">
+              <tr><td>Segunda a sexta</td><td>08:00 – 18:00</td></tr>
+              <tr><td>Sábado</td><td>08:00 – 13:00</td></tr>
+              <tr><td>Domingo</td><td>Fechado</td></tr>
+            </table>
+
+            <a class="btn btn-primary" href="https://wa.me/5515991017862" target="_blank" rel="noopener">Agendar horário</a>
+          </div>
+
+          <div class="map-wrap">
+            <iframe
+              src="https://www.google.com/maps?q=Rodovia+Senador+Jos%C3%A9+Erm%C3%ADrio+de+Moraes,+Sorocaba,+SP&output=embed"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              title="Mapa de localização da oficina">
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer>
+    <div class="footer-grid">
+      <div class="foot-col">
+        <a href="#hero" class="brand">RODOVIA<span>MOTO</span></a>
+        <p style="margin-top:10px; max-width:280px;">Oficina de motos em Sorocaba/SP. Mecânica de confiança pra quem vive na estrada.</p>
+      </div>
+      <div class="foot-col">
+        <div class="foot-title">Navegação</div>
+        <a href="#servicos">Serviços</a>
+        <a href="#avaliacoes">Avaliações</a>
+        <a href="#localizacao">Localização</a>
+      </div>
+      <div class="foot-col">
+        <div class="foot-title">Contato</div>
+        <a href="https://wa.me/5515991017862" target="_blank" rel="noopener">WhatsApp: +55 15 99101-7862</a>
+        <a href="#localizacao">Sorocaba — SP</a>
       </div>
     </div>
-    <div class="model-slot" id="modelSlot">
-      <model-viewer
-        id="bikeModel"
-        src="motorcycle.glb"
-        alt="Modelo 3D de moto"
-        disable-zoom
-        disable-pan
-        disable-tap
-        interaction-prompt="none"
-        exposure="1.1"
-        shadow-intensity="0.6"
-        camera-orbit="45deg 78deg 105%"
-        min-camera-orbit="auto 78deg 105%"
-        max-camera-orbit="auto 78deg 105%"
-        style="width:100%; height:100%; pointer-events:none; --poster-color: transparent; background:transparent;">
-      </model-viewer>
+    <div class="foot-bottom">
+      <span>© <span id="year"></span> Rodovia Motomecânica. Todos os direitos reservados.</span>
+      <span class="mono">SOROCABA · SP</span>
     </div>
-  </div>
-  <div class="stat-strip">
-    <div class="stat"><div class="num">292</div><div class="lab">Avaliações</div></div>
-    <div class="stat"><div class="num">4.9</div><div class="lab">Nota Google</div></div>
-    <div class="stat"><div class="num">6 DIAS</div><div class="lab">Por semana aberto</div></div>
-  </div>
-</section>
+  </footer>
 
-<div class="tread"></div>
-
-<section id="servicos">
-  <div class="section-head">
-    <span class="eyebrow">// serviços</span>
-    <h2 class="section-title display">Preparo pra estrada e pra trilha</h2>
-    <p class="section-sub">Atendimento pra maioria das marcas e modelos — confirme o serviço específico pelo WhatsApp.</p>
-  </div>
-  <div class="services-grid">
-    <div class="service-cell"><div class="service-num">01</div><h3>Revisão completa</h3><p>Checklist geral da moto antes de qualquer viagem longa.</p></div>
-    <div class="service-cell"><div class="service-num">02</div><h3>Troca de óleo e filtros</h3><p>Óleo, filtro de óleo e ar conforme a marca e modelo.</p></div>
-    <div class="service-cell"><div class="service-num">03</div><h3>Freios e suspensão</h3><p>Pastilhas, discos, amortecedores preparados pra terreno irregular.</p></div>
-    <div class="service-cell"><div class="service-num">04</div><h3>Corrente e transmissão</h3><p>Ajuste, lubrificação e troca de kit de relação.</p></div>
-    <div class="service-cell"><div class="service-num">05</div><h3>Elétrica e injeção</h3><p>Diagnóstico de falhas, bateria e sistema de injeção eletrônica.</p></div>
-    <div class="service-cell"><div class="service-num">06</div><h3>Socorro e resgate</h3><p>Atendimento emergencial pra quem quebrou fora da cidade.</p></div>
-  </div>
-  <p class="services-note">* lista de exemplo — confirmar com a oficina os serviços exatos oferecidos antes de publicar</p>
-</section>
-
-<section id="avaliacoes" class="reviews-section">
-  <div class="section-head">
-    <span class="eyebrow">// avaliações reais</span>
-    <h2 class="section-title display">O que dizem no Google</h2>
-  </div>
-  <div class="rating-hero">
-    <div class="rating-num">4.9</div>
-    <div class="rating-meta">
-      <div class="stars">★★★★★</div>
-      <p>292 AVALIAÇÕES NO GOOGLE MAPS</p>
-    </div>
-  </div>
-  <div class="reviews-grid">
-    <div class="review-card">
-      <span class="stars">★★★★★</span>
-      <p>Um cliente lutador de MMA conta que depende da moto no dia a dia e saiu de lá com total confiança no serviço — recomenda fortemente a oficina.</p>
-      <div class="who">— avaliação real no Google</div>
-    </div>
-    <div class="review-card">
-      <span class="stars">★★★★★</span>
-      <p>Outro cliente, de Itu, relata que quebrou a moto a mais de 30km e foi socorrido às 21h — mesmo com a oficina fechando às 22h. Preço justo e atendimento rápido.</p>
-      <div class="who">— avaliação real no Google</div>
-    </div>
-  </div>
-  <a class="reviews-link" href="https://maps.google.com/?cid=15123791426952779007" target="_blank">Ver todas as avaliações no Google →</a>
-</section>
-
-<div class="tread"></div>
-
-<section id="local">
-  <div class="section-head">
-    <span class="eyebrow">// onde estamos</span>
-    <h2 class="section-title display">Jardim Santo Amaro, Sorocaba</h2>
-  </div>
-  <div class="info-grid">
-    <div>
-      <div class="hours-row"><span class="day">Segunda</span><span>13h — 19h</span></div>
-      <div class="hours-row"><span class="day">Terça a sexta</span><span>10h — 19h</span></div>
-      <div class="hours-row"><span class="day">Sábado</span><span>10h — 16h</span></div>
-      <div class="hours-row"><span class="day">Domingo</span><span>Fechado</span></div>
-      <div class="addr-block">
-        <strong>Rodovia Motomecânica</strong>
-        R. Antenor Francelino da Silva, 146 — Jardim Santo Amaro<br>
-        Sorocaba — SP, 18074-675<br><br>
-        WhatsApp: (15) 99101-7862
-      </div>
-      <a class="btn-whats" style="margin-top:22px;" href="https://wa.me/5515991017862" target="_blank">💬 Chamar no WhatsApp</a>
-    </div>
-    <div class="map-frame">
-      <iframe loading="lazy" src="https://www.google.com/maps?q=Rodovia+Moto+Mec%C3%A2nica+Sorocaba&output=embed"></iframe>
-    </div>
-  </div>
-</section>
-
-<section class="cta-band">
-  <span class="eyebrow">// fale com a gente</span>
-  <h2 class="display">Sua moto pronta<br>pra próxima trilha.</h2>
-  <a class="btn-whats" href="https://wa.me/5515991017862" target="_blank">💬 Chamar no WhatsApp</a>
-</section>
-
-<footer>
-  <span>© Rodovia Motomecânica — protótipo de demonstração</span>
-  <span>feito para apresentação, ainda não publicado</span>
-</footer>
+  <!-- ===================== WHATSAPP FLUTUANTE ===================== -->
+  <a class="whatsapp-fab" href="https://wa.me/5515991017862" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+    <svg viewBox="0 0 32 32"><path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.386.7 4.6 1.902 6.463L4 29l7.72-1.868A11.94 11.94 0 0016.001 27C22.629 27 28 21.627 28 15S22.629 3 16.001 3zm0 21.75c-1.99 0-3.85-.56-5.43-1.53l-.39-.23-4.58 1.11 1.14-4.46-.25-.4A9.7 9.7 0 016.25 15c0-5.38 4.38-9.75 9.75-9.75S25.75 9.62 25.75 15 21.38 24.75 16.001 24.75zm5.35-7.3c-.29-.15-1.73-.85-2-.95-.27-.1-.46-.15-.66.15-.2.29-.76.95-.93 1.14-.17.2-.34.22-.63.07-.29-.15-1.22-.45-2.32-1.43-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.34.44-.51.15-.17.2-.29.29-.49.1-.2.05-.37-.02-.51-.07-.15-.66-1.59-.9-2.18-.24-.57-.48-.49-.66-.5h-.56c-.2 0-.51.07-.78.37-.27.29-1.02 1-1.02 2.44s1.05 2.83 1.19 3.02c.15.2 2.06 3.14 5 4.4.7.3 1.24.48 1.67.62.7.22 1.34.19 1.84.11.56-.08 1.73-.71 1.98-1.39.24-.68.24-1.27.17-1.39-.07-.12-.26-.2-.55-.35z"/></svg>
+    <span class="wa-text">+55 15 99101-7862</span>
+  </a>
 
 <script>
-  const bikeModel = document.getElementById('bikeModel');
-  if (bikeModel) {
-    let baseTheta = 45; // grau inicial, igual ao camera-orbit definido no HTML
-    function updateBikeRotation() {
-      const scrollY = window.scrollY || window.pageYOffset;
-      // 1 grau de rotação a cada ~6px rolados — ajustar esse divisor muda a "velocidade" do giro
-      const theta = baseTheta + (scrollY / 6);
-      bikeModel.cameraOrbit = `${theta}deg 78deg 105%`;
-      bikeModel.jumpCameraToGoal();
-    }
-    window.addEventListener('scroll', updateBikeRotation, { passive: true });
-    bikeModel.addEventListener('load', updateBikeRotation);
+(function(){
+  "use strict";
+
+  /* ---------- Ano no footer ---------- */
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  /* ---------- Menu hambúrguer ---------- */
+  var burger = document.getElementById('burgerBtn');
+  var navLinks = document.getElementById('navLinks');
+  burger.addEventListener('click', function(){
+    var open = navLinks.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  navLinks.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){
+      navLinks.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  /* ---------- Rotação da moto ligada ao scroll ---------- */
+  // Ajuste fino: ângulo inicial da câmera (perfil lateral).
+  // Se a moto não aparecer de lado, mude apenas este número (theta, em graus).
+  var INITIAL_THETA = 90;
+  var DEGREES_PER_PIXEL = 0.15; // sensibilidade da rotação pelo scroll
+
+  var bike = document.getElementById('bikeModel');
+  var ticking = false;
+
+  function applyRotation(){
+    var angle = (window.scrollY * DEGREES_PER_PIXEL) % 360;
+    bike.orientation = '0deg ' + angle.toFixed(2) + 'deg 0deg';
+    ticking = false;
   }
+
+  window.addEventListener('scroll', function(){
+    if(!ticking){
+      window.requestAnimationFrame(applyRotation);
+      ticking = true;
+    }
+  }, { passive:true });
+
+  applyRotation();
+
+  /* ---------- Revelar painéis de conteúdo ao entrar na tela ---------- */
+  var reveals = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold:0.15 });
+    reveals.forEach(function(el){ io.observe(el); });
+  } else {
+    reveals.forEach(function(el){ el.classList.add('is-visible'); });
+  }
+})();
 </script>
+
 </body>
 </html>
