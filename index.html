@@ -7,7 +7,21 @@
 <meta name="description" content="Oficina de motos em Sorocaba/SP. Revisão, óleo, freios, transmissão, elétrica e socorro. 4.9★ no Google. Agende pelo WhatsApp.">
 
 <!-- model-viewer (Google) -->
-<script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+<script>
+  // Se o componente <model-viewer> não "upgradar" em alguns segundos
+  // (CDN bloqueado, sem internet no navegador, etc.), mostramos um aviso visível.
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      if (!window.customElements.get('model-viewer')) {
+        var warn = document.createElement('div');
+        warn.textContent = '⚠ Não foi possível carregar o visualizador 3D (script bloqueado ou sem internet). O restante do site funciona normalmente.';
+        warn.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:900;background:#a83232;color:#fff;padding:10px 18px;border-radius:4px;font:13px sans-serif;max-width:90vw;text-align:center;';
+        document.body.appendChild(warn);
+      }
+    }, 4000);
+  });
+</script>
 
 <!-- Fontes: Teko (display condensada, ar de placa/painel), Work Sans (corpo), JetBrains Mono (dados/specs) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -518,7 +532,8 @@
       disable-pan
       disable-tap
       loading="eager"
-      reveal="auto">
+      reveal="auto"
+      onerror="console.error('model-viewer: falha ao carregar motorcycle.glb', event)">
     </model-viewer>
     <div class="dust-particle" style="width:6px;height:6px; left:22%; top:64%; animation-delay:0s;"></div>
     <div class="dust-particle" style="width:4px;height:4px; left:70%; top:58%; animation-delay:3s;"></div>
@@ -752,11 +767,19 @@
   /* ---------- Rotação da moto ligada ao scroll ---------- */
   // Ajuste fino: ângulo inicial da câmera (perfil lateral).
   // Se a moto não aparecer de lado, mude apenas este número (theta, em graus).
-  var INITIAL_THETA = 0;
+  var INITIAL_THETA = 90;
   var DEGREES_PER_PIXEL = 0.15; // sensibilidade da rotação pelo scroll
 
   var bike = document.getElementById('bikeModel');
   var ticking = false;
+
+  bike.addEventListener('error', function(ev){
+    console.error('Erro ao carregar o modelo 3D:', ev.detail || ev);
+    var warn = document.createElement('div');
+    warn.textContent = '⚠ Erro ao carregar motorcycle.glb (verifique se o arquivo está na mesma pasta do index.html e se o nome está exatamente igual, incluindo maiúsculas/minúsculas).';
+    warn.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:900;background:#a83232;color:#fff;padding:10px 18px;border-radius:4px;font:13px sans-serif;max-width:90vw;text-align:center;';
+    document.body.appendChild(warn);
+  });
 
   function applyRotation(){
     var angle = (window.scrollY * DEGREES_PER_PIXEL) % 360;
