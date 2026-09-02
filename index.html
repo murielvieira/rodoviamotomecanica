@@ -783,7 +783,8 @@
 
   function applyRotation(){
     var angle = (window.scrollY * DEGREES_PER_PIXEL) % 360;
-    bike.orientation = '0deg ' + angle.toFixed(2) + 'deg 0deg';
+    // orientation="roll pitch yaw": yaw (3º valor) gira em torno do eixo vertical (Y).
+    bike.orientation = '0deg 0deg ' + angle.toFixed(2) + 'deg';
     ticking = false;
   }
 
